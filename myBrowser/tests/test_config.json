@@ -1,0 +1,6 @@
+{
+  "CHROME_DIR": "/path/to/chrome/directory",
+  "WALLET": "ok",
+  "PROJECT_ROOT_PATH": "/path/to/project/root"
+}
+
