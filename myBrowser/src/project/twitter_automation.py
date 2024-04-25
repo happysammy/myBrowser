@@ -1,3 +1,5 @@
+import time
+
 from myBrowser.src.project.browser_manager import BrowserManager
 class TwitterAutomation(BrowserManager):
 
@@ -7,9 +9,10 @@ class TwitterAutomation(BrowserManager):
         self.password = password
     def login(self):
         self.driver.get("https://twitter.com/login")
+        self.driver.execute_script(f"alert('{self.username}, {self.password}');")
+        time.sleep(10)
         # 逻辑代码填充：查找输入框，输入用户名和密码，点击登录按钮等
 
     def run(self):
-        self.start()
         self.login()
         self.close()
