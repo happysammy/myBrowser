@@ -1,6 +1,7 @@
 {
   "CHROME_DIR": "/path/to/chrome/directory",
   "WALLET": "ok",
-  "PROJECT_ROOT_PATH": "/path/to/project/root"
+  "PROJECT_ROOT_PATH": "/path/to/project/root",
+  "user_data_base_path": "/Volumes/Elements/chrome_dir/"
 }
 
