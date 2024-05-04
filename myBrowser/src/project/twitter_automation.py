@@ -14,5 +14,6 @@ class TwitterAutomation(BrowserManager):
         # 逻辑代码填充：查找输入框，输入用户名和密码，点击登录按钮等
 
     def run(self):
+        self.start()
         self.login()
         self.close()
