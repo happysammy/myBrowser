@@ -17,14 +17,18 @@ class BrowserManager:
         excel_browser_config_path = get_config_path(excel_name)
         self.browser_config = load_browser_config(excel_browser_config_path, user_data_index)
 
+        self.extensions_path = get_config_path(base_config.get('extensions_path', None))
+
         self.driver = None
-        self.start()
+
 
     def start(self):
         self.driver = self.init_driver()
 
     def init_driver(self):
         options = webdriver.ChromeOptions()
+        if self.extensions_path:
+            self.load_extensions(options)
         for option in self.browser_config.get('options', []):
             options.add_argument(option)
         if self.browser_config.get('proxy'):
@@ -36,6 +40,14 @@ class BrowserManager:
         driver = webdriver.Chrome(service=service, options=options)
         return driver
 
+    def load_extensions(self, options):
+        """遍历extensions_path中的所有文件夹，加载CRX插件"""
+        for root, dirs, files in os.walk(self.extensions_path):
+            for file in files:
+                if file.endswith('.crx'):
+                    crx_path = os.path.join(root, file)
+                    options.add_extension(crx_path)
+
     def run(self):
         raise NotImplementedError("Subclasses must implement this method.")
 
@@ -45,7 +57,8 @@ class BrowserManager:
 
 
 if __name__ == '__main__':
-    manager = BrowserManager(user_data_index=1)
+    manager = BrowserManager(user_data_index=14)
+    manager.start()
     time.sleep(30)
     # 执行操作
     manager.close()

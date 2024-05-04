@@ -1,2 +1,3 @@
 "user_data_base_path": "/Volumes/Elements/chrome_dir/"
 driver_path: ""
+extensions_path: "./extensions/"
