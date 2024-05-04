@@ -1,26 +1,50 @@
 import logging
+import argparse
 from concurrent.futures import ThreadPoolExecutor
 from myBrowser.src.project.twitter_automation import TwitterAutomation
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def main():
-    # 定义任务列表
-    tasks = [
-        TwitterAutomation(username="user1", password="pass1"),
-        TwitterAutomation(username="user2", password="pass2"),
-        # 可以添加更多任务，甚至是不同类型的任务
-    ]
+def create_task(task_type, **kwargs):
+    if task_type == "twitter":
+        return TwitterAutomation(**kwargs)
+    else:
+        raise ValueError(f"Unsupported task type: {task_type}")
 
-    # 使用ThreadPoolExecutor并行执行任务
+def parse_task_args(task_args):
+    tasks = []
+    for arg in task_args:
+        task_info = arg.split(':')
+        task_type = task_info[0]
+        # 解析范围
+        index_range = task_info[1].split('-')
+        start_index = int(index_range[0])
+        end_index = int(index_range[1]) + 1  # 包括结束索引
+        for index in range(start_index, end_index):
+            task_kwargs = {'user_data_index': index}
+            for kv in task_info[2:]:
+                key, value = kv.split('=')
+                task_kwargs[key] = value
+            tasks.append(create_task(task_type, **task_kwargs))
+    return tasks
+
+def main(tasks):
     with ThreadPoolExecutor(max_workers=len(tasks)) as executor:
         futures = [executor.submit(task.run) for task in tasks]
 
-        # 等待所有任务完成
         for future in futures:
-            result = future.result()  # 如果有返回值可以在这里获取
+            result = future.result()
             print(result)
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Social Media Automation Script')
+    parser.add_argument('-t', '--tasks', nargs='+', action='append', help='Tasks with their parameters in task_type:index_range:key=value format', required=True)
+
+    args = parser.parse_args()
+
+    # Flatten the list of lists for tasks
+    task_args = [item for sublist in args.tasks for item in sublist]
+    tasks = parse_task_args(task_args)
+
+    main(tasks)
 
