@@ -1,16 +1,24 @@
 import time
-
+import socket
+from typing import Optional
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 import os
+
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 from myBrowser.src.utils.config_loader import load_base_config, load_browser_config, get_config_path
 
 
 class BrowserManager:
+    driver: Optional[webdriver.Chrome]
+
     def __init__(self, user_data_index=None, base_config_name='config.yaml', excel_name='browsers_config.xlsx'):
         base_config_file_path = get_config_path(base_config_name)
         base_config = load_base_config(base_config_file_path)
         self.driver_path = base_config['driver_path']
+        self.debug = base_config['debug']
         self.user_data_base_path = base_config['user_data_base_path']
 
         self.user_data_index = user_data_index
@@ -21,12 +29,36 @@ class BrowserManager:
 
         self.driver = None
 
+    def wait_for_element_to_be_visible(self, locator, timeout=10):
+        WebDriverWait(self.driver, timeout).until(
+            EC.visibility_of_element_located(locator)
+        )
 
     def start(self):
-        self.driver = self.init_driver()
+        if self.debug and self.is_port_available(9222):
+            self.driver = self.init_driver_with_debug()
+        elif self.debug:
+            self.driver = self.connect_to_existing_driver()
+        else:
+            self.driver = self.init_driver()
 
-    def init_driver(self):
+    def is_port_available(self, port):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            return s.connect_ex(('localhost', port)) != 0
+
+    def init_driver_with_debug(self):
         options = webdriver.ChromeOptions()
+        options.add_argument("--remote-debugging-port=9222")
+        return self.init_driver(options)
+
+    def connect_to_existing_driver(self):
+        options = webdriver.ChromeOptions()
+        options.add_experimental_option("debuggerAddress", "localhost:9222")
+        return webdriver.Chrome(options=options, service=ChromeService(executable_path=self.driver_path))
+
+    def init_driver(self, options=None):
+        if options is None:
+            options = webdriver.ChromeOptions()
         if self.extensions_path:
             self.load_extensions(options)
         for option in self.browser_config.get('options', []):
@@ -59,6 +91,7 @@ class BrowserManager:
 if __name__ == '__main__':
     manager = BrowserManager(user_data_index=14)
     manager.start()
+    manager.driver.get("http://www.qq.com")
     time.sleep(30)
     # 执行操作
-    manager.close()
+    #manager.close()
