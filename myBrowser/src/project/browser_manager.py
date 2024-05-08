@@ -14,7 +14,9 @@ from myBrowser.src.utils.config_loader import load_base_config, load_browser_con
 class BrowserManager:
     driver: Optional[webdriver.Chrome]
 
-    def __init__(self, user_data_index=None, base_config_name='config.yaml', excel_name='browsers_config.xlsx'):
+    def __init__(self, user_data_index=None, base_config_name='config.yaml', excel_name='browsers_config.xlsx',
+                 timeout=10):
+        self.wait = None
         base_config_file_path = get_config_path(base_config_name)
         base_config = load_base_config(base_config_file_path)
         self.driver_path = base_config['driver_path']
@@ -28,9 +30,10 @@ class BrowserManager:
         self.extensions_path = get_config_path(base_config.get('extensions_path', None))
 
         self.driver = None
+        self.timeout = timeout
 
     def wait_for_element_to_be_visible(self, locator, timeout=10):
-        WebDriverWait(self.driver, timeout).until(
+        return WebDriverWait(self.driver, timeout).until(
             EC.visibility_of_element_located(locator)
         )
 
@@ -41,6 +44,8 @@ class BrowserManager:
             self.driver = self.connect_to_existing_driver()
         else:
             self.driver = self.init_driver()
+            
+        self.wait = WebDriverWait(self.driver, self.timeout)
 
     def is_port_available(self, port):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -89,7 +94,7 @@ class BrowserManager:
 
 
 if __name__ == '__main__':
-    manager = BrowserManager(user_data_index=14)
+    manager = BrowserManager(user_data_index=None)
     manager.start()
     manager.driver.get("http://www.qq.com")
     time.sleep(30)
