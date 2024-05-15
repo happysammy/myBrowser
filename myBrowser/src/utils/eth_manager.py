@@ -67,9 +67,8 @@ class EVMAddressManager:
             if addr.index == index:
                 private_key = addr.get_private_key(self.encryption_key)
                 mnemonic = addr.get_mnemonic(self.encryption_key)
-                print(f"Address: {addr.address}\nPrivate Key: {private_key}\nMnemonic: {mnemonic}")
-                return
-        print("Address not found.")
+                return {"index": addr.index, "address": addr.address, "private_key": private_key, "mnemonic": mnemonic}
+        print(f"Address not found. index:{index}")
 
     def save_addresses(self):
         """将地址列表保存到JSON文件"""
