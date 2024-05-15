@@ -69,8 +69,8 @@ class EVMAddressManager:
         for addr in self.decrypt_addrs:
             if addr['index'] == index:
                 return addr
-            else:
-                return None
+
+        return None
 
     def get_all_addr_info(self):
         self.ensure_encryption_key()
