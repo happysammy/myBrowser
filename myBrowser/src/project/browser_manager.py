@@ -9,6 +9,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from myBrowser.src.utils.config_loader import load_base_config, load_browser_config, get_config_path
+from myBrowser.src.utils.eth_manager import EVMAddressManager
 
 
 class BrowserManager:
@@ -30,7 +31,21 @@ class BrowserManager:
         self.extensions_path = get_config_path(base_config.get('extensions_path', None))
 
         self.driver = None
+        self.addr = None
         self.timeout = timeout
+
+    def load_encrypt_from_index(self, evm_addr_manager: EVMAddressManager):
+        """
+        addr example {index:0,addr:0xaaa,private_key:0xaaa,mnemonic:word word}
+        :param evm_addr_manager:
+        :return:
+        """
+        self.addr = evm_addr_manager.get_address_info(self.user_data_index)
+        if self.addr is None:
+            return False
+        else:
+            return True
+
 
     def wait_for_element_to_be_visible(self, locator, timeout=10):
         return WebDriverWait(self.driver, timeout).until(
