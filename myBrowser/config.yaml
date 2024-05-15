@@ -2,3 +2,17 @@
 driver_path: ""
 extensions_path: "./extensions/"
 debug: True
+NETWORK_CONFIGS: {
+    'mainnet': {
+        'url': 'https://mainnet.infura.io/v3/your_project_id',
+        'chain_id': 1,
+    },
+    'ropsten': {
+        'url': 'https://ropsten.infura.io/v3/your_project_id',
+        'chain_id': 3,
+    },
+    'linea': {
+        'url': 'https://linea-mainnet.infura.io/v3/your_api_key',
+        'chain_id': 59144,
+    }
+}
