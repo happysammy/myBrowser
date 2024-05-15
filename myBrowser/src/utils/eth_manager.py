@@ -44,6 +44,7 @@ class EVMAddressManager:
         self.addresses = []
         self.encryption_key = None  # 存储加密密钥
         self.load_addresses()
+        self.decrypt_addrs = []
 
     def ensure_encryption_key(self):
         """确保加密密钥已被设置"""
@@ -60,15 +61,27 @@ class EVMAddressManager:
 
     def get_address_info(self, index):
         """获取地址信息，包括解密的私钥和助记词"""
+        if type(index) == int:
+            index = str(index)
+        if len(self.decrypt_addrs) == 0:
+            self.get_all_addr_info()
+
+        for addr in self.decrypt_addrs:
+            if addr['index'] == index:
+                return addr
+            else:
+                return None
+
+    def get_all_addr_info(self):
         self.ensure_encryption_key()
+        decrypt_addrs = []
         for addr in self.addresses:
-            if type(index) == int:
-                index = str(index)
-            if addr.index == index:
-                private_key = addr.get_private_key(self.encryption_key)
-                mnemonic = addr.get_mnemonic(self.encryption_key)
-                return {"index": addr.index, "address": addr.address, "private_key": private_key, "mnemonic": mnemonic}
-        print(f"Address not found. index:{index}")
+            private_key = addr.get_private_key(self.encryption_key)
+            mnemonic = addr.get_mnemonic(self.encryption_key)
+            decrypt_addrs.append({"index": addr.index, "address": addr.address,
+                                  "private_key": private_key, "mnemonic": mnemonic})
+        self.decrypt_addrs = decrypt_addrs
+
 
     def save_addresses(self):
         """将地址列表保存到JSON文件"""
@@ -99,7 +112,7 @@ if __name__ == "__main__":
     manager = EVMAddressManager()
     #manager.add_address(1, "0x123...", "my_private_key", "my_mnemonic_phrase")
     # manager.get_address_info(1)
-    manager.get_address_info(0)
+    print(manager.get_address_info(0))
     #manager.parse_addresses()
 
 
