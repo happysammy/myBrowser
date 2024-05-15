@@ -5,8 +5,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-class OkxWeb3Automation(BrowserManager):
 
+class OkxWeb3Automation(BrowserManager):
 
     def __init__(self, password, private_key=None, mnemonic=None, **kwargs):
         super().__init__(**kwargs)
@@ -52,18 +52,19 @@ class OkxWeb3Automation(BrowserManager):
             EC.visibility_of_element_located((By.CSS_SELECTOR, button_open_css))
         )
         self.driver.find_elements(By.CSS_SELECTOR, button_open_css)[1].click()
+
     def open(self):
         self.driver.get(self.url)
 
-
-
-
     def run(self):
         self.start()
-        self.login()
+        self.load_encrypt_from_index()
+        self.first_import()
         self.close()
 
+
 if __name__ == '__main__':
-    okx = OkxWeb3Automation(user_data_index=None, password="q1w2e3r4", mnemonic="valley vanish luggage travel infant pig brush target crew garden reopen spend")
-    okx.start()
-    okx.first_import()
+    from myBrowser.src.utils.eth_manager import EVMAddressManager
+    evm_addr_manager = EVMAddressManager()
+    okx = OkxWeb3Automation(user_data_index=600, password="123456", evm_addr_manager=evm_addr_manager)
+    okx.run()
