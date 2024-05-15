@@ -14,10 +14,14 @@ from myBrowser.src.utils.eth_manager import EVMAddressManager
 
 class BrowserManager:
     driver: Optional[webdriver.Chrome]
+    evm_addr_manager: EVMAddressManager
 
     def __init__(self, user_data_index=None, base_config_name='config.yaml', excel_name='browsers_config.xlsx',
-                 timeout=10):
+                 timeout=10, evm_addr_manager=None):
+        self.mnemonic = None
+        self.private_key = None
         self.wait = None
+        self.evm_addr_manager = evm_addr_manager
         base_config_file_path = get_config_path(base_config_name)
         base_config = load_base_config(base_config_file_path)
         self.driver_path = base_config['driver_path']
@@ -34,16 +38,18 @@ class BrowserManager:
         self.addr = None
         self.timeout = timeout
 
-    def load_encrypt_from_index(self, evm_addr_manager: EVMAddressManager):
+    def load_encrypt_from_index(self):
         """
         addr example {index:0,addr:0xaaa,private_key:0xaaa,mnemonic:word word}
         :param evm_addr_manager:
         :return:
         """
-        self.addr = evm_addr_manager.get_address_info(self.user_data_index)
+        self.addr = self.evm_addr_manager.get_address_info(self.user_data_index)
         if self.addr is None:
             return False
         else:
+            self.private_key = self.addr['private_key']
+            self.mnemonic = self.addr['mnemonic']
             return True
 
 
