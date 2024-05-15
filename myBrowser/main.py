@@ -3,13 +3,19 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor
 from myBrowser.src.project.twitter_automation import TwitterAutomation
 from myBrowser.src.project.common_auto import CommonAutomation
+from myBrowser.src.project.okxweb3_automation import OkxWeb3Automation
 from src.utils.config_loader import get_config_path
+from myBrowser.src.utils.eth_manager import EVMAddressManager
+
+evm_addr_manager = EVMAddressManager()
 
 def create_task(task_type, **kwargs):
     if task_type == "twitter":
         return TwitterAutomation(**kwargs)
     if task_type == "common":
         return CommonAutomation(**kwargs)
+    if task_type == "okx":
+        return OkxWeb3Automation(evm_addr_manager=evm_addr_manager, **kwargs)
 
     else:
         raise ValueError(f"Unsupported task type: {task_type}")
